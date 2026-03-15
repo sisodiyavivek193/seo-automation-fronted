@@ -67,7 +67,7 @@ export default function Login() {
         <form onSubmit={handleSubmit}>
           {/* Email */}
           <div style={{ marginBottom: 16 }}>
-            <label style={{ display: 'block', fontSize: 11, color: 'var(--text-white)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 6 }}>Email</label>
+            <label style={{ display: 'block', fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 6 }}>Email</label>
             <div style={{ position: 'relative' }}>
               <Mail size={14} color="var(--text-white)" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
               <input
@@ -83,7 +83,7 @@ export default function Login() {
 
           {/* Password */}
           <div style={{ marginBottom: 24 }}>
-            <label style={{ display: 'block', fontSize: 11, color: 'var(--text-white)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 6 }}>Password</label>
+            <label style={{ display: 'block', fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 6 }}>Password</label>
             <div style={{ position: 'relative' }}>
               <Lock size={14} color="var(--text-white)" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
               <input
