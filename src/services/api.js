@@ -1,9 +1,18 @@
+// import axios from 'axios';
+
+// const api = axios.create({
+//   baseURL: 'http://localhost:5000/api',
+//   headers: { 'Content-Type': 'application/json' },
+// });
+
+
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: 'https://seo-automation-production-bfb4.up.railway.app/api',
   headers: { 'Content-Type': 'application/json' },
 });
+
 
 api.interceptors.request.use((config) => {
   const user = localStorage.getItem('seo_auth');
@@ -43,6 +52,8 @@ export const getReportsByClient = (id) => api.get(`/reports/client/${id}`);
 export const createReport = (data) => api.post('/reports', data);
 export const deleteReport = (id) => api.delete(`/reports/${id}`);
 export const getReportStats = () => api.get('/reports/stats');
-export const downloadReportUrl = (id) => `http://localhost:5000/api/reports/${id}/download`;
+// export const downloadReportUrl = (id) => `http://localhost:5000/api/reports/${id}/download`;
+export const downloadReportUrl = (id) =>
+  `https://seo-automation-production-bfb4.up.railway.app/api/reports/${id}/download`;
 
 export default api;
