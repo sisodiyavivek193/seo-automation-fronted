@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Clients from './pages/Clients';
 import Reports from './pages/Reports';
+import Approvals from './pages/Approvals';
 
 export default function App() {
   return (
@@ -15,6 +16,8 @@ export default function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="clients" element={<Clients />} />
           <Route path="reports" element={<Reports />} />
+          <Route path="approvals" element={<Approvals />} />
+
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
