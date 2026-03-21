@@ -7,9 +7,8 @@ const EMPTY_FORM = {
   clientId: '',
   startDate: '',
   endDate: '',
-  reportType: 'weekly',
-  aiSummary: '',
-  rawDocContent: ''  // ✅ NEW: Store raw document content
+  reportType: 'weekly'
+  // ❌ NO MORE: aiSummary, rawDocContent!
 };
 
 const STATUS_CONFIG = {
@@ -116,22 +115,28 @@ export default function Reports() {
 
   const handleCreate = async () => {
     if (!form.clientId || !form.startDate || !form.endDate) {
-      setFormError('Client, Start Date aur End Date required hain.'); return;
+      setFormError('Client, Start Date aur End Date required hain.');
+      return;
     }
-    setSaving(true); setFormError('');
+
+    setSaving(true);
+    setFormError('');
+
     try {
-      // ✅ NEW: Include rawDocContent when creating report
+      // ✅ SIRF YEH BHEJ!
       await createReport({
-        ...form,
-        traffic: 0,
-        keywords: 0,
-        backlinks: 0
-        // rawDocContent: form.rawDocContent will be sent automatically
+        clientId: form.clientId,
+        startDate: form.startDate,
+        endDate: form.endDate,
+        reportType: form.reportType
       });
+
       await loadAll();
       setModal(false);
       setForm(EMPTY_FORM);
-    } catch (e) { setFormError(e.response?.data?.message || 'Create failed.'); }
+    } catch (e) {
+      setFormError(e.response?.data?.message || 'Create failed.');
+    }
     setSaving(false);
   };
 
@@ -312,11 +317,12 @@ export default function Reports() {
         </div>
       )}
 
-      {/* Create Report Modal */}
       {modal && (
         <Modal onClose={() => setModal(false)}>
           <div style={{ minWidth: 480 }}>
-            <h2 style={{ margin: '0 0 20px', fontFamily: 'var(--font-display)', fontSize: 20 }}>New Report</h2>
+            <h2 style={{ margin: '0 0 20px', fontFamily: 'var(--font-display)', fontSize: 20 }}>
+              New Report
+            </h2>
 
             {formError && (
               <div style={{ margin: '0 0 16px', background: 'var(--warn-dim)', border: '1px solid var(--warn)', borderRadius: 8, padding: '10px 14px', color: 'var(--warn)', fontSize: 12 }}>
@@ -324,7 +330,7 @@ export default function Reports() {
               </div>
             )}
 
-            {/* Client Selection */}
+            {/* FIELD 1: CLIENT */}
             <label style={labelStyle}>Client</label>
             <select
               value={form.clientId}
@@ -335,7 +341,7 @@ export default function Reports() {
               {clients.map(c => <option key={c._id} value={c._id}>{c.clientName}</option>)}
             </select>
 
-            {/* Dates */}
+            {/* FIELD 2 & 3: DATES */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
               <div>
                 <label style={labelStyle}>Start Date</label>
@@ -357,41 +363,18 @@ export default function Reports() {
               </div>
             </div>
 
-            {/* Report Type */}
+            {/* FIELD 4: REPORT TYPE */}
             <label style={labelStyle}>Report Type</label>
             <select
               value={form.reportType}
               onChange={e => setForm({ ...form, reportType: e.target.value })}
-              style={{ ...inputStyle, marginBottom: 16 }}
+              style={{ ...inputStyle, marginBottom: 20 }}
             >
               <option value="weekly">Weekly</option>
               <option value="monthly">Monthly</option>
             </select>
 
-            {/* ✅ NEW: Document Content */}
-            <label style={labelStyle}>📄 Document Content (Google Doc HTML)</label>
-            <textarea
-              value={form.rawDocContent}
-              onChange={handleDocContentChange}
-              placeholder="Paste Google Doc HTML content here... (या empty rakh sakte ho)"
-              rows={6}
-              style={{ ...inputStyle, marginBottom: 16, resize: 'vertical', fontFamily: 'var(--font-mono)', fontSize: 12 }}
-            />
-            <p style={{ margin: '0 0 16px', fontSize: 11, color: 'var(--text-white)', opacity: 0.7 }}>
-              💡 Hint: Google Doc se select all (Ctrl+A) → Copy → Paste yahan
-            </p>
-
-            {/* AI Summary */}
-            <label style={labelStyle}>AI Summary (Optional)</label>
-            <textarea
-              value={form.aiSummary}
-              onChange={e => setForm({ ...form, aiSummary: e.target.value })}
-              placeholder="Kya improvement chahiye report mein..."
-              rows={3}
-              style={{ ...inputStyle, marginBottom: 20, resize: 'vertical', fontFamily: 'var(--font-mono)', fontSize: 12 }}
-            />
-
-            {/* Buttons */}
+            {/* BUTTONS */}
             <div style={{ display: 'flex', gap: 10 }}>
               <button
                 onClick={() => setModal(false)}
@@ -404,16 +387,13 @@ export default function Reports() {
                 disabled={saving}
                 style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, background: saving ? 'var(--bg-elevated)' : 'var(--accent)', border: 'none', borderRadius: 8, color: saving ? 'var(--accent)' : '#0a0b0e', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, padding: '10px', cursor: saving ? 'not-allowed' : 'pointer' }}
               >
-                {saving ? (
-                  <><div className="spinner" style={{ width: 12, height: 12, border: '2px solid var(--accent)', borderTopColor: 'transparent', borderRadius: '50%' }} /> Creating...</>
-                ) : (
-                  <><Plus size={14} /> Create Report</>
-                )}
+                {saving ? 'Creating...' : '+ Create Report'}
               </button>
             </div>
           </div>
         </Modal>
       )}
+
 
       {/* Delete Confirmation Modal */}
       {delModal && (
