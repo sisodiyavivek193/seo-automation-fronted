@@ -267,10 +267,25 @@ export default function Reports() {
                   </td>
                   <td style={{ padding: '12px 16px', color: 'var(--text-white)', fontSize: 13, textTransform: 'capitalize' }}>{r.reportType}</td>
                   <td style={{ padding: '12px 16px', fontSize: 13 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, width: 'fit-content', background: STATUS_CONFIG[r.emailStatus]?.bg, color: STATUS_CONFIG[r.emailStatus]?.color, padding: '4px 10px', borderRadius: 6 }}>
-                      {STATUS_CONFIG[r.emailStatus]?.icon && <STATUS_CONFIG[r.emailStatus].icon size={14} />}
-                      {STATUS_CONFIG[r.emailStatus]?.label}
-                    </div>
+                    {STATUS_CONFIG[r.emailStatus] ? (() => {
+                      const config = STATUS_CONFIG[r.emailStatus];
+                      const IconComponent = config.icon;
+                      return (
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          width: 'fit-content',
+                          background: config.bg,
+                          color: config.color,
+                          padding: '4px 10px',
+                          borderRadius: 6
+                        }}>
+                          {IconComponent && <IconComponent size={14} />}
+                          {config.label}
+                        </div>
+                      );
+                    })() : null}
                   </td>
                   <td style={{ padding: '12px 16px', textAlign: 'right' }}>
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
