@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Eye, Trash2, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Trash2, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { getReports, getClients, deleteReport, downloadReportUrl } from '../services/api';
 import Modal from '../components/Modal';
 
@@ -37,7 +37,6 @@ export default function Reports() {
     setError('');
     try {
       const [rRes, cRes] = await Promise.all([getReports(), getClients()]);
-      // ✅ Sort by createdAt (latest first)
       const sortedReports = (rRes.data || []).sort((a, b) =>
         new Date(b.createdAt) - new Date(a.createdAt)
       );
@@ -53,7 +52,6 @@ export default function Reports() {
     loadAll();
   }, []);
 
-  // ✅ Real-time filtering
   useEffect(() => {
     let result = [...reports];
 
@@ -160,7 +158,6 @@ export default function Reports() {
 
   return (
     <div style={{ padding: '32px 40px', maxWidth: 1400 }}>
-
       {/* Header */}
       <div className="fade-up" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 24 }}>
         <div>
@@ -170,7 +167,7 @@ export default function Reports() {
           </h1>
         </div>
         <p style={{ margin: 0, fontSize: 12, color: 'var(--text-white)', opacity: 0.7 }}>
-          ℹ️ Reports auto-generated Saturday 9 AM. CEO approves in Approvals page.
+          ℹ️ Auto-generated Saturday 9 AM
         </p>
       </div>
 
@@ -192,23 +189,23 @@ export default function Reports() {
       {/* Stats Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 24 }}>
         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 8, padding: 12 }}>
-          <p style={{ margin: '0 0 4px', fontSize: 10, color: 'var(--text-white)', letterSpacing: '0.5px' }}>SENT</p>
+          <p style={{ margin: '0 0 4px', fontSize: 10, color: 'var(--text-white)' }}>SENT</p>
           <p style={{ margin: 0, fontSize: 24, color: 'var(--accent)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{sentCount}</p>
         </div>
         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 8, padding: 12 }}>
-          <p style={{ margin: '0 0 4px', fontSize: 10, color: 'var(--text-white)', letterSpacing: '0.5px' }}>FAILED</p>
+          <p style={{ margin: '0 0 4px', fontSize: 10, color: 'var(--text-white)' }}>FAILED</p>
           <p style={{ margin: 0, fontSize: 24, color: 'var(--warn)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{failedCount}</p>
         </div>
         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 8, padding: 12 }}>
-          <p style={{ margin: '0 0 4px', fontSize: 10, color: 'var(--text-white)', letterSpacing: '0.5px' }}>PENDING EMAIL</p>
+          <p style={{ margin: '0 0 4px', fontSize: 10, color: 'var(--text-white)' }}>PENDING EMAIL</p>
           <p style={{ margin: 0, fontSize: 24, color: 'var(--blue)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{pendingCount}</p>
         </div>
         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 8, padding: 12 }}>
-          <p style={{ margin: '0 0 4px', fontSize: 10, color: 'var(--text-white)', letterSpacing: '0.5px' }}>PENDING REVIEW</p>
+          <p style={{ margin: '0 0 4px', fontSize: 10, color: 'var(--text-white)' }}>PENDING REVIEW</p>
           <p style={{ margin: 0, fontSize: 24, color: '#f59e0b', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{pendingReviewCount}</p>
         </div>
         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 8, padding: 12 }}>
-          <p style={{ margin: '0 0 4px', fontSize: 10, color: 'var(--text-white)', letterSpacing: '0.5px' }}>AWAITING APPROVAL</p>
+          <p style={{ margin: '0 0 4px', fontSize: 10, color: 'var(--text-white)' }}>AWAITING APPROVAL</p>
           <p style={{ margin: 0, fontSize: 24, color: 'var(--accent)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{awaitingApprovalCount}</p>
         </div>
       </div>
@@ -218,7 +215,7 @@ export default function Reports() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
           <input
             type="text"
-            placeholder="Search by client, type..."
+            placeholder="Search by client..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             style={inputStyle}
@@ -245,8 +242,8 @@ export default function Reports() {
               </option>
             ))}
           </select>
-          <input type="date" value={filterFrom} onChange={e => setFilterFrom(e.target.value)} style={inputStyle} placeholder="From" />
-          <input type="date" value={filterTo} onChange={e => setFilterTo(e.target.value)} style={inputStyle} placeholder="To" />
+          <input type="date" value={filterFrom} onChange={e => setFilterFrom(e.target.value)} style={inputStyle} />
+          <input type="date" value={filterTo} onChange={e => setFilterTo(e.target.value)} style={inputStyle} />
           {hasFilters && (
             <button
               onClick={clearFilters}
@@ -270,86 +267,77 @@ export default function Reports() {
       {/* Loading State */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '60px', color: 'var(--text-white)' }}>
-          <div
-            className="spinner"
-            style={{
-              width: 24,
-              height: 24,
-              border: '2px solid var(--border-bright)',
-              borderTopColor: 'var(--accent)',
-              borderRadius: '50%',
-              margin: '0 auto 12px'
-            }}
-          />
+          <div className="spinner" style={{ width: 24, height: 24, border: '2px solid var(--border-bright)', borderTopColor: 'var(--accent)', borderRadius: '50%', margin: '0 auto 12px' }} />
           Loading reports...
         </div>
       ) : filtered.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '60px', color: 'var(--text-white)' }}>
-          {hasFilters ? 'No reports match your filters.' : 'No reports yet. Reports auto-generate Saturday 9 AM!'}
+          {hasFilters ? 'No reports match your filters.' : 'No reports yet.'}
         </div>
       ) : (
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: 11, fontWeight: 700, color: 'var(--text-white)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>CLIENT</th>
-                <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: 11, fontWeight: 700, color: 'var(--text-white)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>PERIOD</th>
-                <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: 11, fontWeight: 700, color: 'var(--text-white)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>TYPE</th>
-                <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: 11, fontWeight: 700, color: 'var(--text-white)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>APPROVAL</th>
-                <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: 11, fontWeight: 700, color: 'var(--text-white)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>EMAIL</th>
-                <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: 11, fontWeight: 700, color: 'var(--text-white)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>ACTIONS</th>
+                <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: 11, fontWeight: 700, color: 'var(--text-white)', textTransform: 'uppercase' }}>CLIENT</th>
+                <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: 11, fontWeight: 700, color: 'var(--text-white)', textTransform: 'uppercase' }}>PERIOD</th>
+                <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: 11, fontWeight: 700, color: 'var(--text-white)', textTransform: 'uppercase' }}>TYPE</th>
+                <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: 11, fontWeight: 700, color: 'var(--text-white)', textTransform: 'uppercase' }}>APPROVAL</th>
+                <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: 11, fontWeight: 700, color: 'var(--text-white)', textTransform: 'uppercase' }}>EMAIL</th>
+                <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: 11, fontWeight: 700, color: 'var(--text-white)', textTransform: 'uppercase' }}>ACTION</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map(r => (
-                <tr key={r._id} style={{ borderBottom: '1px solid var(--border)' }}>
-                  <td style={{ padding: '12px 16px', color: 'var(--text-white)', fontSize: 13 }}>
-                    <strong>{getClientName(r.clientId)}</strong>
-                  </td>
-                  <td style={{ padding: '12px 16px', color: 'var(--text-white)', fontSize: 13 }}>
-                    {new Date(r.startDate).toLocaleDateString('en-IN')} → {new Date(r.endDate).toLocaleDateString('en-IN')}
-                  </td>
-                  <td style={{ padding: '12px 16px', color: 'var(--text-white)', fontSize: 13, textTransform: 'capitalize' }}>
-                    {r.reportType}
-                  </td>
-                  <td style={{ padding: '12px 16px', fontSize: 12 }}>
-                    {APPROVAL_STATUS_CONFIG[r.approvalStatus] && (
-                      <div style={{
-                        display: 'inline-block',
-                        background: APPROVAL_STATUS_CONFIG[r.approvalStatus].bg,
-                        color: APPROVAL_STATUS_CONFIG[r.approvalStatus].color,
-                        padding: '4px 10px',
-                        borderRadius: 6,
-                        fontSize: 10,
-                        fontWeight: 700,
-                        letterSpacing: '0.5px'
-                      }}>
-                        {APPROVAL_STATUS_CONFIG[r.approvalStatus].label}
-                      </div>
-                    )}
-                  </td>
-                  <td style={{ padding: '12px 16px', fontSize: 12 }}>
-                    {STATUS_CONFIG[r.emailStatus] && (
-                      <div style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 6,
-                        background: STATUS_CONFIG[r.emailStatus].bg,
-                        color: STATUS_CONFIG[r.emailStatus].color,
-                        padding: '4px 10px',
-                        borderRadius: 6,
-                        fontSize: 10,
-                        fontWeight: 700
-                      }}>
-                        {STATUS_CONFIG[r.emailStatus].icon &&
-                          <STATUS_CONFIG[r.emailStatus].icon size={12} />
-                        }
-                        {STATUS_CONFIG[r.emailStatus].label}
-                      </div>
-                    )}
-                  </td>
-                  <td style={{ padding: '12px 16px', textAlign: 'right' }}>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+              {filtered.map(r => {
+                const approvalConfig = APPROVAL_STATUS_CONFIG[r.approvalStatus];
+                const emailConfig = STATUS_CONFIG[r.emailStatus];
+                const IconComponent = emailConfig?.icon;
+
+                return (
+                  <tr key={r._id} style={{ borderBottom: '1px solid var(--border)' }}>
+                    <td style={{ padding: '12px 16px', color: 'var(--text-white)', fontSize: 13 }}>
+                      <strong>{getClientName(r.clientId)}</strong>
+                    </td>
+                    <td style={{ padding: '12px 16px', color: 'var(--text-white)', fontSize: 13 }}>
+                      {new Date(r.startDate).toLocaleDateString('en-IN')} → {new Date(r.endDate).toLocaleDateString('en-IN')}
+                    </td>
+                    <td style={{ padding: '12px 16px', color: 'var(--text-white)', fontSize: 13, textTransform: 'capitalize' }}>
+                      {r.reportType}
+                    </td>
+                    <td style={{ padding: '12px 16px', fontSize: 12 }}>
+                      {approvalConfig && (
+                        <div style={{
+                          display: 'inline-block',
+                          background: approvalConfig.bg,
+                          color: approvalConfig.color,
+                          padding: '4px 10px',
+                          borderRadius: 6,
+                          fontSize: 10,
+                          fontWeight: 700
+                        }}>
+                          {approvalConfig.label}
+                        </div>
+                      )}
+                    </td>
+                    <td style={{ padding: '12px 16px', fontSize: 12 }}>
+                      {emailConfig && (
+                        <div style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          background: emailConfig.bg,
+                          color: emailConfig.color,
+                          padding: '4px 10px',
+                          borderRadius: 6,
+                          fontSize: 10,
+                          fontWeight: 700
+                        }}>
+                          {IconComponent && <IconComponent size={12} />}
+                          {emailConfig.label}
+                        </div>
+                      )}
+                    </td>
+                    <td style={{ padding: '12px 16px', textAlign: 'right' }}>
                       <button
                         onClick={() => setDelModal(r)}
                         style={{
@@ -361,20 +349,19 @@ export default function Reports() {
                           cursor: 'pointer',
                           fontSize: 12
                         }}
-                        title="Delete report"
                       >
-                        🗑️
+                        <Trash2 size={14} />
                       </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Modal */}
       {delModal && (
         <Modal onClose={() => setDelModal(null)}>
           <div style={{ minWidth: 360 }}>
@@ -382,7 +369,7 @@ export default function Reports() {
               Delete Report?
             </h2>
             <p style={{ margin: '0 0 20px', color: 'var(--text-white)', fontSize: 13 }}>
-              {getClientName(delModal.clientId)} ka report delete ho jayega. Ye undo nahi ho sakta.
+              {getClientName(delModal.clientId)} ka report delete ho jayega. Undo nahi ho sakta.
             </p>
             <div style={{ display: 'flex', gap: 10 }}>
               <button
