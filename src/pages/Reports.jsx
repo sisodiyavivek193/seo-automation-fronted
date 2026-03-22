@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Trash2, CheckCircle, XCircle, Clock } from 'lucide-react';
-import { getReports, getClients, deleteReport, downloadReportUrl } from '../services/api';
+import { Trash2, CheckCircle, XCircle, Clock, Plus } from 'lucide-react';
+import { getReports, getClients, createReport, deleteReport } from '../services/api';
 import Modal from '../components/Modal';
 
 const STATUS_CONFIG = {
@@ -24,6 +24,10 @@ export default function Reports() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [delModal, setDelModal] = useState(null);
+  const [modal, setModal] = useState(false);
+  const [selectedClient, setSelectedClient] = useState('');
+  const [generating, setGenerating] = useState(false);
+  const [formError, setFormError] = useState('');
 
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
@@ -119,20 +123,36 @@ export default function Reports() {
     }
   };
 
-  const handleDownload = (reportId) => {
-    const token = JSON.parse(localStorage.getItem('seo_auth') || '{}').token;
-    fetch(downloadReportUrl(reportId), { headers: { Authorization: `Bearer ${token}` } })
-      .then(res => {
-        if (!res.ok) throw new Error();
-        return res.blob();
-      })
-      .then(blob => {
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `report-${reportId}.pdf`;
-        a.click();
-      })
-      .catch(() => alert('PDF available nahi hai.'));
+  // ✅ GENERATE FIRST REPORT (Auto-calculates last 7 days)
+  const handleGenerateFirstReport = async () => {
+    if (!selectedClient) {
+      setFormError('Client select karo');
+      return;
+    }
+
+    setGenerating(true);
+    setFormError('');
+
+    try {
+      // ✅ Auto-calculate last 7 days
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(endDate.getDate() - 7);
+
+      await createReport({
+        clientId: selectedClient,
+        startDate: startDate.toISOString().split('T')[0],
+        endDate: endDate.toISOString().split('T')[0],
+        reportType: 'weekly'
+      });
+
+      await loadAll();
+      setModal(false);
+      setSelectedClient('');
+    } catch (e) {
+      setFormError(e.response?.data?.message || 'Report generate fail ho gaya');
+    }
+    setGenerating(false);
   };
 
   const hasFilters = search || filterStatus || filterApprovalStatus || filterClient || filterFrom || filterTo;
@@ -166,9 +186,29 @@ export default function Reports() {
             Reports<span style={{ color: 'var(--accent)' }}>_</span>
           </h1>
         </div>
-        <p style={{ margin: 0, fontSize: 12, color: 'var(--text-white)', opacity: 0.7 }}>
-          ℹ️ Auto-generated Saturday 9 AM
-        </p>
+        <button
+          onClick={() => {
+            setModal(true);
+            setSelectedClient('');
+            setFormError('');
+          }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            background: 'var(--accent)',
+            border: 'none',
+            borderRadius: 8,
+            color: '#0a0b0e',
+            fontFamily: 'var(--font-display)',
+            fontWeight: 700,
+            fontSize: 14,
+            padding: '12px 20px',
+            cursor: 'pointer'
+          }}
+        >
+          <Plus size={18} /> Generate First Report
+        </button>
       </div>
 
       {/* Error Alert */}
@@ -272,7 +312,7 @@ export default function Reports() {
         </div>
       ) : filtered.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '60px', color: 'var(--text-white)' }}>
-          {hasFilters ? 'No reports match your filters.' : 'No reports yet.'}
+          {hasFilters ? 'No reports match your filters.' : 'No reports yet. Generate first report to get started!'}
         </div>
       ) : (
         <div style={{ overflowX: 'auto' }}>
@@ -359,6 +399,91 @@ export default function Reports() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {/* Generate First Report Modal */}
+      {modal && (
+        <Modal onClose={() => setModal(false)}>
+          <div style={{ minWidth: 360 }}>
+            <h2 style={{ margin: '0 0 12px', fontFamily: 'var(--font-display)', fontSize: 18 }}>
+              Generate First Report
+            </h2>
+            <p style={{ margin: '0 0 16px', fontSize: 12, color: 'var(--text-white)', opacity: 0.8 }}>
+              ✅ Dates auto-calculate to last 7 days
+            </p>
+
+            {formError && (
+              <div style={{
+                margin: '0 0 16px',
+                background: 'var(--warn-dim)',
+                border: '1px solid var(--warn)',
+                borderRadius: 8,
+                padding: '10px 14px',
+                color: 'var(--warn)',
+                fontSize: 12
+              }}>
+                {formError}
+              </div>
+            )}
+
+            <label style={{ display: 'block', fontSize: 11, color: 'var(--text-white)', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 5 }}>
+              Select Client
+            </label>
+            <select
+              value={selectedClient}
+              onChange={e => setSelectedClient(e.target.value)}
+              style={{ ...inputStyle, marginBottom: 20 }}
+            >
+              <option value="">Choose a client...</option>
+              {clients.map(c => (
+                <option key={c._id} value={c._id}>
+                  {c.clientName}
+                </option>
+              ))}
+            </select>
+
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button
+                onClick={() => setModal(false)}
+                style={{
+                  flex: 1,
+                  background: 'transparent',
+                  border: '1px solid var(--border)',
+                  borderRadius: 8,
+                  color: 'var(--text-white)',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: 13,
+                  padding: '10px',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleGenerateFirstReport}
+                disabled={generating}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                  background: generating ? 'var(--bg-elevated)' : 'var(--accent)',
+                  border: 'none',
+                  borderRadius: 8,
+                  color: generating ? 'var(--accent)' : '#0a0b0e',
+                  fontFamily: 'var(--font-display)',
+                  fontWeight: 700,
+                  fontSize: 13,
+                  padding: '10px',
+                  cursor: generating ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {generating ? '⏳ Generating...' : '✅ Generate'}
+              </button>
+            </div>
+          </div>
+        </Modal>
       )}
 
       {/* Delete Modal */}
